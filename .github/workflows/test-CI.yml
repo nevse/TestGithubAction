@@ -22,6 +22,7 @@ jobs:
         id: latest_tag
         with:
           repository: ${{ github.repository }}
+          prefix: ${{ github.ref }}
           releases-only: false
       - run: |
           echo "${{ github.repository }} is at version ${{ steps.latest_tag.outputs.tag }}"
