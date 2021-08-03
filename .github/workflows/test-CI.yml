@@ -18,6 +18,28 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      # Just add this  => 
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+
+
+
+      # And you get this  => 
+      - name: Print slug/short variables
+        run: |
+          echo "Slug variables"
+          echo " - ${{ env.GITHUB_REF_SLUG }}"    
+          echo " - ${{ env.GITHUB_HEAD_REF_SLUG }}"
+          echo " - ${{ env.GITHUB_BASE_REF_SLUG }}"
+          echo " - ${{ env.GITHUB_REPOSITORY_SLUG }}"
+          echo "Slug URL variables"
+          echo " - ${{ env.GITHUB_REF_SLUG_URL }}"
+          echo " - ${{ env.GITHUB_HEAD_REF_SLUG_URL }}"
+          echo " - ${{ env.GITHUB_BASE_REF_SLUG_URL }}"
+          echo " - ${{ env.GITHUB_REPOSITORY_SLUG_URL }}"
+          echo "Short SHA variables"
+          echo " - ${{ env.GITHUB_SHA_SHORT }}"
+
       - uses: oprypin/find-latest-tag@v1
         id: latest_tag
         with:
