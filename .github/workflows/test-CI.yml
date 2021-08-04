@@ -65,7 +65,7 @@ jobs:
         run: |
           $patch=0;
 
-          if ($steps.branch-or-tag.tag) {
+          if ("$steps.branch-or-tag.tag") {
             $tag="$steps.branch-or-tag.tag"
           } elseif {
             $tag="$steps.latest_tag"
@@ -73,7 +73,7 @@ jobs:
 
           $minor="$tag.0"
           $minorPatch="$tag.$patch"
-          
+
           echo "::set-output name=minor::$minor"
           echo "::set-output name=branch::$branchName"
           echo "::set-output name=minorPatch::$minorPatch"
