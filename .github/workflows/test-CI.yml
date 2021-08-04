@@ -53,7 +53,7 @@ jobs:
         id: latest_tag
         with:
           repository: ${{ github.repository }}
-          prefix: ${{ steps.branch-or-tag.branch }}
+          prefix: ${{ steps.branch-or-tag.output.branch }}
           releases-only: false
         if: ${{ steps.branch-or-tag.outputs.tag == '' }}
       - run: |
