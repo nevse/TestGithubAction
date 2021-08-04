@@ -13,17 +13,73 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     runs-on: windows-latest
-
+    env:
+      DEFAULT_MINOR: "21.2.0"
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
 
       - name: Info!!!!
         run: |
           dir env:
           echo "------------------------"
           echo "Labeled ${{ github.ref }}"
+
+      - name: Get branch or tag   
+        id: branch-or-tag
+        run: |
+          $eventName=$env:GITHUB_EVENT_NAME
+          $ref=$env:GITHUB_BASE_REF
+          if ($eventName -eq "pull_request") {
+              $branchName=$ref #29.8
+          } elseif ($ref.StartsWith('refs/heads/')) {
+              $branchName=$ref -replace 'refs/heads/',"" #29.8
+          } elseif ($ref.StartsWith('refs/tags/')) {
+              $tag=$ref -replace 'refs/tags/',"" #29.8.7
+          }
+          if ($branchName -eq "dev") {
+              $tag=$DEFAULT_MINOR
+          } elseif ($branchName){
+              if(-Not ($branchName -match "\d+\.\d+")) {
+                  Write-Host "Wrong branch format $branchName"
+                  exit 1
+              }
+              echo "::set-output name=branch::$branchName"
+          } elseif ($tag) {
+              echo "::set-output name=tag::$tag"
+          }
+
+      - uses: oprypin/find-latest-tag@v1
+        id: latest_tag
+        with:
+          repository: ${{ github.repository }}
+          prefix: ${{ steps.branch-or-tag.branch }}
+          releases-only: false
+        if: steps.branch-or-tag.tag == ''
+      - run: |
+          echo "${{ github.repository }} is at version ${{ steps.latest_tag.outputs.tag }}"
+
+
+      - name: Calculate version
+        id: calculate-version
+        run: |
+          $patch=0;
+
+          if ($steps.branch-or-tag.tag) {
+            $tag="$steps.branch-or-tag.tag"
+          } elseif {
+            $tag="$steps.latest_tag"
+          }
+
+          $minor="$tag.0"
+          $minorPatch="$tag.$patch"
+          
+          echo "::set-output name=minor::$minor"
+          echo "::set-output name=branch::$branchName"
+          echo "::set-output name=minorPatch::$minorPatch"
+          echo "::set-output name=short::$shortVersion"
+          echo "Minor is $minor and patch is $minorPatch. Short is $shortVersion"
+
       # # Just add this  => 
       # - name: Inject slug/short variables
       #   uses: rlespinasse/github-slug-action@v3.x
@@ -44,45 +100,41 @@ jobs:
       #     echo "Short SHA variables"
       #     echo " - ${{ env.GITHUB_SHA_SHORT }}"
 
-      - name: Calculate version
-        id: calculate-version
-        run: |
-          if ($env:GITHUB_EVENT_NAME -eq "pull_request") {
-            $branchName=$env:GITHUB_BASE_REF #29.8
-          } else {
-            $branchName=$env:GITHUB_REF -replace 'refs/heads/',"" #29.8
-            $branchName=$branchName -replace 'refs/tags/',""
-          }
-          if ($branchName -eq "dev") {
-            $minor="$env:DEFAULT_MINOR.0"
-            $minorPatch="$env:DEFAULT_MINOR.0"
-          } else {
-            if(-Not ($branchName -match "\d+\.\d+\.\d+")) {
-              Write-Host "Wrong branch format $branchName"
-              exit 1
-            }
-            $minor="$branchName.0"
-            $minorPatch="$branchName.0"
-          }
-          $shortVersion=$minorPatch -replace "(\d+)\.(\d+)\.\d+\.\d+",'$1$2'
-          
-          # echo "Version=$env:TAG.0" >> $GITHUB_ENV
-          # echo "VersionPatch=$env:TAG.$env:GITHUB_RUN_NUMBER" >> $GITHUB_ENV
-          
-          echo "::set-output name=minor::$minor"
-          echo "::set-output name=branch::$branchName"
-          echo "::set-output name=minorPatch::$minorPatch"
-          echo "::set-output name=short::$shortVersion"
-          echo "Minor is $minor and patch is $minorPatch. Short is $shortVersion"
+      # - name: Get branch or tag   
+      #   id: branch-or-tag
+      #   run: |
+      #     $eventName=$env:GITHUB_EVENT_NAME
+      #     $ref=$env:GITHUB_BASE_REF
+      #     if ($eventName -eq "pull_request") {
+      #         $branchName=$ref #29.8
+      #     } elseif ($ref.StartsWith('refs/heads/')) {
+      #         $branchName=$ref -replace 'refs/heads/',"" #29.8
+      #     } elseif ($ref.StartsWith('refs/tags/')) {
+      #         $tag=$ref -replace 'refs/tags/',"" #29.8.7
+      #     }
+      #     if ($branchName -eq "dev") {
+      #         $tag=$DEFAULT_MINOR
+      #     } elseif ($branchName){
+      #         if(-Not ($branchName -match "\d+\.\d+")) {
+      #             Write-Host "Wrong branch format $branchName"
+      #             exit 1
+      #         }
+      #         echo "::set-output name=branch::$branchName"
+      #     } elseif ($tag) {
+      #         echo "::set-output name=tag::$tag"
+      #     }
 
-      - uses: oprypin/find-latest-tag@v1
-        id: latest_tag
-        with:
-          repository: ${{ github.repository }}
-          prefix: ${{ steps.calculate-version.branch }}
-          releases-only: false
-        if: steps.calculate-version.branch != 'dev'
-      - run: |
-          echo "${{ github.repository }} is at version ${{ steps.latest_tag.outputs.tag }}"
+
+      
+
+      # - uses: oprypin/find-latest-tag@v1
+      #   id: latest_tag
+      #   with:
+      #     repository: ${{ github.repository }}
+      #     prefix: ${{ steps.calculate-version.branch }}
+      #     releases-only: false
+      #   if: steps.calculate-version.branch != 'dev'
+      # - run: |
+      #     echo "${{ github.repository }} is at version ${{ steps.latest_tag.outputs.tag }}"
 
       
