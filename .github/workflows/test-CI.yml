@@ -55,7 +55,7 @@ jobs:
           repository: ${{ github.repository }}
           prefix: ${{ steps.branch-or-tag.branch }}
           releases-only: false
-        if: steps.branch-or-tag.tag == ''
+        if: steps.branch-or-tag.outputs.tag == ''
       - run: |
           echo "${{ github.repository }} is at version ${{ steps.latest_tag.outputs.tag }}"
 
@@ -66,9 +66,9 @@ jobs:
           $patch=0;
 
           if ("$steps.branch-or-tag.tag") {
-            $tag="$steps.branch-or-tag.tag"
+            $tag="${{ steps.branch-or-tag.outputs.tag }}"
           } else {
-            $tag="$steps.latest_tag"
+            $tag="${{ steps.latest_tag.outputs.tag }}"
           }
 
           $minor="$tag.0"
