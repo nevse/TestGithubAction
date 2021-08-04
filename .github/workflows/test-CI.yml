@@ -49,10 +49,10 @@ jobs:
                   Write-Host "Wrong branch format $branchName"
                   exit 1
               }
-              echo "::set-output name=branch::$branchName"
-              echo "::set-output name=branchPrefix::$branchName."
+              echo "Branch=$branchName" >> $env:GITHUB_ENV
+              echo "BranchPrefix=$branchName." >> $env:GITHUB_ENV
           } elseif ($tag) {
-              echo "::set-output name=tag::$tag"
+              echo "Tag=$tag" >> $env:GITHUB_ENV
           }
           echo "event=$eventName; ref=$env:GITHUB_REF; branchName=$branchName; tag=$tag"
 
@@ -62,7 +62,7 @@ jobs:
           repository: ${{ github.repository }}
           prefix: ${{ steps.branch-or-tag.outputs.branchPrefix }}
           releases-only: false
-        if: ${{ steps.branch-or-tag.outputs.tag == '' }}
+        if: ${{ env.BranchPrefix }}
       - run: |
           echo "${{ github.repository }} is at version ${{ steps.latest_tag.outputs.tag }}. ${{ steps.branch-or-tag.outputs.branch }}"
 
@@ -70,10 +70,10 @@ jobs:
       - name: Calculate version
         id: calculate-version
         run: |
-          $patch=0;
+          $patch=132;
 
-          if ("${{ steps.branch-or-tag.outputs.tag }}") {
-            $tag="${{ steps.branch-or-tag.outputs.tag }}"
+          if ("${{ env.tag }}") {
+            $tag="${{ env.tag }}"
           } else {
             $tag="${{ steps.latest_tag.outputs.tag }}"
           }
@@ -81,11 +81,16 @@ jobs:
           $minor="$tag.0"
           $minorPatch="$tag.$patch"
 
-          echo "::set-output name=minor::$minor"
-          echo "::set-output name=branch::$branchName"
-          echo "::set-output name=minorPatch::$minorPatch"
-          echo "::set-output name=short::$shortVersion"
+          echo "MinorVersion::$minor" >> $env:GITHUB_ENV
+          echo "MinorFullVersion::$minorPatch" >> $env:GITHUB_ENV
+          echo "ShortVersionString::$shortVersion" >> $env:GITHUB_ENV
           echo "Minor is $minor and patch is $minorPatch. Short is $shortVersion"
+
+      - name: LastInfo!!!!
+        run: |
+          dir env:
+          echo "------------------------"
+          echo "Labeled ${{ github.ref }}"
 
       # # Just add this  => 
       # - name: Inject slug/short variables
