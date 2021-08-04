@@ -21,7 +21,7 @@ jobs:
         
       - name: Set environments
         run: | 
-          echo "SignUserId=$DEFAULT_MINOR" >> $env:GITHUB_ENV
+          echo "SignUserId=$env:DEFAULT_MINOR" >> $env:GITHUB_ENV
           echo "SignUserPass=somePswd" >> $env:GITHUB_ENV
           echo "SignUserDomain=corp" >> $env:GITHUB_ENV
 
@@ -43,7 +43,7 @@ jobs:
               $tag=$env:GITHUB_REF -replace 'refs/tags/',"" #29.8.7
           }
           if ($branchName -eq "dev") {
-              $tag="$DEFAULT_MINOR"
+              $tag="$env:DEFAULT_MINOR"
           } elseif ($branchName){
               if(-Not ($branchName -match "\d+\.\d+")) {
                   Write-Host "Wrong branch format $branchName"
