@@ -53,11 +53,11 @@ jobs:
         id: latest_tag
         with:
           repository: ${{ github.repository }}
-          prefix: ${{ steps.branch-or-tag.output.branch }}
+          prefix: ${{ steps.branch-or-tag.outputs.branch }}
           releases-only: false
         if: ${{ steps.branch-or-tag.outputs.tag == '' }}
       - run: |
-          echo "${{ github.repository }} is at version ${{ steps.latest_tag.outputs.tag }}"
+          echo "${{ github.repository }} is at version ${{ steps.latest_tag.outputs.tag }}. ${{ steps.branch-or-tag.outputs.branch }}"
 
 
       - name: Calculate version
