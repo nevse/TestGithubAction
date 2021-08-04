@@ -28,8 +28,8 @@ jobs:
       - name: Get branch or tag   
         id: branch-or-tag
         run: |
-          $eventName=$env:GITHUB_EVENT_NAME
-          $ref=$env:GITHUB_BASE_REF
+          $eventName="$env:GITHUB_EVENT_NAME"
+          $ref="$env:GITHUB_BASE_REF"
           if ($eventName -eq "pull_request") {
               $branchName=$ref #29.8
           } elseif ($ref.StartsWith('refs/heads/')) {
@@ -38,7 +38,7 @@ jobs:
               $tag=$ref -replace 'refs/tags/',"" #29.8.7
           }
           if ($branchName -eq "dev") {
-              $tag=$DEFAULT_MINOR
+              $tag="$DEFAULT_MINOR"
           } elseif ($branchName){
               if(-Not ($branchName -match "\d+\.\d+")) {
                   Write-Host "Wrong branch format $branchName"
