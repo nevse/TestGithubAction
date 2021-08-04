@@ -65,7 +65,7 @@ jobs:
         run: |
           $patch=0;
 
-          if ("$steps.branch-or-tag.tag") {
+          if ("$steps.branch-or-tag.outputs.tag") {
             $tag="${{ steps.branch-or-tag.outputs.tag }}"
           } else {
             $tag="${{ steps.latest_tag.outputs.tag }}"
