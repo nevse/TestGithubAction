@@ -48,6 +48,7 @@ jobs:
           } elseif ($tag) {
               echo "::set-output name=tag::$tag"
           }
+          echo "branchName=$branchName; tag=$tag"
 
       - uses: oprypin/find-latest-tag@v1
         id: latest_tag
