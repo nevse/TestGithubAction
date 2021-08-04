@@ -44,6 +44,7 @@ jobs:
                   exit 1
               }
               echo "::set-output name=branch::$branchName"
+              echo "::set-output name=branchPrefix::$branchName."
           } elseif ($tag) {
               echo "::set-output name=tag::$tag"
           }
@@ -53,7 +54,7 @@ jobs:
         id: latest_tag
         with:
           repository: ${{ github.repository }}
-          prefix: ${{ steps.branch-or-tag.outputs.branch }}
+          prefix: ${{ steps.branch-or-tag.outputs.branchPrefix }}
           releases-only: false
         if: ${{ steps.branch-or-tag.outputs.tag == '' }}
       - run: |
