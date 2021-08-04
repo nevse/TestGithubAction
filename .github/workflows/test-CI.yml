@@ -55,7 +55,7 @@ jobs:
           repository: ${{ github.repository }}
           prefix: ${{ steps.branch-or-tag.branch }}
           releases-only: false
-        if: steps.branch-or-tag.outputs.tag == ''
+        if: ${{ steps.branch-or-tag.outputs.tag == '' }}
       - run: |
           echo "${{ github.repository }} is at version ${{ steps.latest_tag.outputs.tag }}"
 
