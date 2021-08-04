@@ -29,13 +29,12 @@ jobs:
         id: branch-or-tag
         run: |
           $eventName="$env:GITHUB_EVENT_NAME"
-          $ref="$env:GITHUB_BASE_REF"
           if ($eventName -eq "pull_request") {
-              $branchName="$ref" #29.8
-          } elseif ($ref.StartsWith('refs/heads/')) {
-              $branchName=$ref -replace 'refs/heads/',"" #29.8
-          } elseif ($ref.StartsWith('refs/tags/')) {
-              $tag=$ref -replace 'refs/tags/',"" #29.8.7
+              $branchName="$env:GITHUB_BASE_REF" #29.8
+          } elseif ($env:GITHUB_REF.StartsWith('refs/heads/')) {
+              $branchName=$env:GITHUB_REF -replace 'refs/heads/',"" #29.8
+          } elseif ($env:GITHUB_REF.StartsWith('refs/tags/')) {
+              $tag=$env:GITHUB_REF -replace 'refs/tags/',"" #29.8.7
           }
           if ($branchName -eq "dev") {
               $tag="$DEFAULT_MINOR"
@@ -48,7 +47,7 @@ jobs:
           } elseif ($tag) {
               echo "::set-output name=tag::$tag"
           }
-          echo "event=$eventName; ref=$ref; branchName=$branchName; tag=$tag"
+          echo "event=$eventName; ref=$env:GITHUB_REF; branchName=$branchName; tag=$tag"
 
       - uses: oprypin/find-latest-tag@v1
         id: latest_tag
