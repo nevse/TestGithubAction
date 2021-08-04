@@ -22,8 +22,6 @@ jobs:
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v3.x
 
-
-
       # And you get this  => 
       - name: Print slug/short variables
         run: |
@@ -40,12 +38,44 @@ jobs:
           echo "Short SHA variables"
           echo " - ${{ env.GITHUB_SHA_SHORT }}"
 
+      - name: Calculate version
+        id: calculate-version
+        run: |
+          if ($env:GITHUB_EVENT_NAME -eq "pull_request") {
+            $branchName=$env:GITHUB_BASE_REF #29.8.7
+          } else {
+            $branchName=$env:GITHUB_REF -replace 'refs/heads/',"" #29.8.7
+            $branchName=$branchName -replace 'refs/tags/',""
+          }
+          if ($branchName -eq "dev") {
+            $minor="$env:DEFAULT_MINOR.0"
+            $minorPatch="$env:DEFAULT_MINOR.0"
+          } else {
+            if(-Not ($branchName -match "\d+\.\d+\.\d+")) {
+              Write-Host "Wrong branch format $branchName"
+              exit 1
+            }
+            $minor="$branchName.0"
+            $minorPatch="$branchName.0"
+          }
+          $shortVersion=$minorPatch -replace "(\d+)\.(\d+)\.\d+\.\d+",'$1$2'
+          
+          # echo "Version=$env:TAG.0" >> $GITHUB_ENV
+          # echo "VersionPatch=$env:TAG.$env:GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+          
+          echo "::set-output name=minor::$minor"
+          echo "::set-output name=branch::$branchName"
+          echo "::set-output name=minorPatch::$minorPatch"
+          echo "::set-output name=short::$shortVersion"
+          echo "Minor is $minor and patch is $minorPatch. Short is $shortVersion"
+
       - uses: oprypin/find-latest-tag@v1
         id: latest_tag
         with:
           repository: ${{ github.repository }}
-          prefix: ${{ github.ref }}
+          prefix: ${{ steps.calculate-version.branch }}
           releases-only: false
+        if: steps.calculate-version.branch != 'dev'
       - run: |
           echo "${{ github.repository }} is at version ${{ steps.latest_tag.outputs.tag }}"
 
