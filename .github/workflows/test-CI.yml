@@ -81,9 +81,9 @@ jobs:
           $minor="$tag.0"
           $minorPatch="$tag.$patch"
 
-          echo "MinorVersion::$minor" >> $env:GITHUB_ENV
-          echo "MinorFullVersion::$minorPatch" >> $env:GITHUB_ENV
-          echo "ShortVersionString::$shortVersion" >> $env:GITHUB_ENV
+          echo "MinorVersion=$minor" >> $env:GITHUB_ENV
+          echo "MinorFullVersion=$minorPatch" >> $env:GITHUB_ENV
+          echo "ShortVersionString=$shortVersion" >> $env:GITHUB_ENV
           echo "Minor is $minor and patch is $minorPatch. Short is $shortVersion"
 
       - name: LastInfo!!!!
