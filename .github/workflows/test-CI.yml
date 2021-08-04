@@ -67,7 +67,7 @@ jobs:
 
           if ("$steps.branch-or-tag.tag") {
             $tag="$steps.branch-or-tag.tag"
-          } elseif {
+          } else {
             $tag="$steps.latest_tag"
           }
 
