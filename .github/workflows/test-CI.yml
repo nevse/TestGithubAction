@@ -30,6 +30,7 @@ jobs:
           dir env:
           echo "------------------------"
           echo "Labeled ${{ github.ref }}"
+          exit 1
 
       - name: Get branch or tag   
         id: branch-or-tag
